@@ -60,7 +60,7 @@ public class BattleSystem : MonoBehaviour
 
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
 
-        enemyHUD.SetHp(enemyUnit.currentHP);
+        enemyHUD.SetHP(enemyUnit.currentHP);
         dialogueText.text = "that seemed to do something ";
 
         yield return new WaitForSeconds(2f);
@@ -91,7 +91,7 @@ public class BattleSystem : MonoBehaviour
 
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
 
-        playerHUD.SetHp(playerUnit.currentHP);
+        playerHUD.SetHP(playerUnit.currentHP);
 
         if(isDead)
         {
@@ -125,6 +125,31 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(PlayerAttack());
 
     }
+
+    IEnumerator PlayerHeal()
+    {
+
+        playerUnit.Heal(5);
+        
+        playerHUD.SetHP(playerUnit.currentHP);
+
+        yield return new WaitForSeconds(2f);
+
+        state = BattleState.ENEMYTURN;
+        StartCoroutine(EnemyTurn());
+
+    }
+
+    public void OnHealButton()
+    {
+
+        if (state != BattleState.PLAYERTURN)
+            return;
+
+        StartCoroutine(PlayerHeal());
+
+    }
+
 
     void EndBattle()
     {
