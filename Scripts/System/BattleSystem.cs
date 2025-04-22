@@ -22,6 +22,7 @@ public class BattleSystem : MonoBehaviour
     public Text dialogueText;
 
     public BattleHUD playerHUD;
+    public BattleHUD enemyHUD;
 
 
     // Start is called before the first frame update
@@ -54,11 +55,90 @@ public class BattleSystem : MonoBehaviour
 
     }
 
+    IEnumerator PlayerAttack()
+    {
+
+        bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+
+        enemyHUD.SetHp(enemyUnit.currentHP);
+        dialogueText.text = "that seemed to do something ";
+
+        yield return new WaitForSeconds(2f);
+
+        if (isDead)
+        {
+
+            state = BattleState.WON;
+            EndBattle();
+
+        } else
+        {
+
+            state = BattleState.ENEMYTURN;
+            StartCoroutine(EnemyTurn());
+
+        }
+
+
+    }
+
+    IEnumerator EnemyTurn()
+    {
+
+        dialogueText.text = enemyUnit.unitName + " attacks!";
+
+        yield return new WaitForSeconds(1f);
+
+        bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
+
+        playerHUD.SetHp(playerUnit.currentHP);
+
+        if(isDead)
+        {
+
+            state = BattleState.LOST;
+            EndBattle();
+
+        }else
+        {
+
+            state = BattleState.PLAYERTURN;
+            PlayerTurn();
+
+        }
+
+    }
+
     void PlayerTurn()
     {
 
         dialogueText.text = "Choose an action:";
 
+    }
+
+    public void OnAttackButton()
+    {
+
+        if (state != BattleState.PLAYERTURN)
+            return;
+
+        StartCoroutine(PlayerAttack());
+
+    }
+
+    void EndBattle()
+    {
+        if(state == BattleState.WON)
+        {
+
+            dialogueText.text = "You survived";
+
+        }else if (state == BattleState.LOST)
+        {
+
+            dialogueText.text = "You were torn to shreds.";
+
+        }
     }
 
     // Update is called once per frame
